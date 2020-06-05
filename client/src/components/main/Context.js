@@ -44,6 +44,10 @@ import RecommendYoutuberPostList from '../youtuberPostManagement/RecommendYoutub
 import YoutuberPostUpload from '../youtuberPostManagement/YoutuberPostUpload';
 import YoutuberPost from '../youtuberPostManagement/YoutuberPost';
 import YoutuberPostModify from '../youtuberPostManagement/YoutuberPostModify';
+import LookUpJobApplication from '../youtuberPostManagement/LookUpJobApplication';
+
+import MyProfile from '../UserManagement/MyProfile';
+import YoutuberProfileModify from '../UserManagement/YoutuberProfileModify';
 
 const drawerWidth = 240;
 
@@ -241,6 +245,7 @@ class Context extends Component {
         //const classes = styles;
         const isMenuOpen = Boolean(this.state.anchorEl);
         const { classes } = this.props;
+        const myPageUrl = "/myPage/profile/" + localStorage.getItem("user_id");
 
         const menuId = 'primary-search-account-menu';
         const renderMenu = (
@@ -355,7 +360,7 @@ class Context extends Component {
                                 <ListItemText primary="구인 공고" />
                             </ListItem>
                         </NavLink>
-                        <NavLink to="/myPage/Profile" style={{ textDecoration: 'none' }} onClick={function (e) {
+                        <NavLink to={myPageUrl} style={{ textDecoration: 'none' }} onClick={function (e) {
                             this.props.onClick("MyProfile");
                         }.bind(this)}>
                             <ListItem button>
@@ -457,7 +462,7 @@ class Context extends Component {
 
                             <Route path="/myPage">
                                 <ListSubheader inset>마이 페이지</ListSubheader>
-                                <NavLink to="/myPage/profile" style={{ textDecoration: 'none' }} onClick={function (e) {
+                                <NavLink to={myPageUrl} style={{ textDecoration: 'none' }} onClick={function (e) {
                             this.props.onClick("FollowEditorPostList");
                         }.bind(this)}>
                                     <ListItem button>
@@ -491,6 +496,11 @@ class Context extends Component {
 
                             <Route exact path="/youtuberPost/:youtuber_post_id" component={YoutuberPost}></Route>
                             <Route exact path="/youtuberPost/youtuberPostModify/:youtuber_post_id" component={YoutuberPostModify}></Route>
+                            <Route exact path="/youtuberPost/lookUpJobApplication/:youtuber_post_id" component={LookUpJobApplication}></Route>
+
+                            <Route exact path="/mypage/profile/:user_id" component={MyProfile}></Route>
+                            <Route exact path="/myPage/profileModify/:user_id" component={YoutuberProfileModify}></Route>
+                            
                             
                             {console.log(window.location.href)}
                             {window.location.href === "http://localhost:3000/#/" ? localStorage.getItem('user_id') == null 
@@ -502,15 +512,6 @@ class Context extends Component {
                             }
                             
                         </Switch>
-                        {/* {this.props.context === "FollowEditorPostList" && <FollowEditorPostList />}
-                        {this.props.context === "MyEditorPostList" && <MyEditorPostList />}
-                        {this.props.context === "RecommendEditorPostList" && <RecommendEditorPostList />} */}
-                        {/* { this.props.context == "FollowEditorPostList" && <FollowEditorPostList/> }
-                { this.props.context == "FollowEditorPostList" && <FollowEditorPostList/> }
-                { this.props.context == "FollowEditorPostList" && <FollowEditorPostList/> }
-                { this.props.context == "FollowEditorPostList" && <FollowEditorPostList/> } */}
-
-
                     </div>
                 </main>
             </div>

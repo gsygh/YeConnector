@@ -344,6 +344,7 @@ class YoutuberPost extends Component {
         const classes = this.props;
         var current_state = '';
         var modifyUrl = "/youtuberPost/youtuberPostModify/" + this.state.youtuber_post_id;
+        var lookUpJobApplicationUrl = "/youtuberPost/lookUpJobApplication/" + this.state.youtuber_post_id;
         
         return (
             <div>
@@ -387,9 +388,11 @@ class YoutuberPost extends Component {
 
                     {this.state.youtuber_id === localStorage.getItem('user_id') && this.state.current_state === "before_start"
                         ? <Box p={1} ml={3}>
-                            <Typography gutterBottom variant="h5" component="h2" style={{ textDecoration: 'none' }} className={classes.pageTitle}>
-                                <Button variant="contained" color="primary">신청 조회</Button>
-                            </Typography>
+                            <NavLink to={String(lookUpJobApplicationUrl)} style={{ textDecoration: 'none' }}>
+                                <Typography gutterBottom variant="h5" component="h2" style={{ textDecoration: 'none' }} className={classes.pageTitle}>
+                                    <Button variant="contained" color="primary">신청 조회</Button>
+                                </Typography>
+                            </NavLink>
                         </Box>
                         : null}
                     

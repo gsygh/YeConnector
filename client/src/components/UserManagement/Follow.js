@@ -48,7 +48,12 @@ class Follow extends Component {
     }
 
     handleDeleteFollow = () => {
-        this.deleteFollow()
+        if(localStorage.getItem("user_id") === this.props.user_id) {
+            alert("본인은 팔로우 취소할 수 없습니다!");
+            return;
+        }
+        else {
+            this.deleteFollow()
             .then((response) => {
             
             if (response.data === "success") {
@@ -58,6 +63,8 @@ class Follow extends Component {
             }
             this.props.stateRefresh();
         });
+        }
+        
     }
 
     deleteFollow = () => {

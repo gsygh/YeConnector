@@ -68,6 +68,7 @@ class EveryYoutuberPostList extends Component {
                 youtuber_list.then((youtuber_list) => {
                     let youtuber_post_list = this.loopForGetYoutuberPost(youtuber_list);
                     youtuber_post_list.then((youtuber_post_list) => {
+                        console.log(youtuber_post_list);
                         let filtered_youtuber_post_list = this.filterOutOpen(youtuber_post_list);
                         filtered_youtuber_post_list.then((filtered_youtuber_post_list) => {
                             this.setState({post_list: filtered_youtuber_post_list});
@@ -113,12 +114,13 @@ class EveryYoutuberPostList extends Component {
             let params = {
                 user_id : item
             }
-
+            
             let one_youtuber_name = this.getYoutuberName(url, params);
             await one_youtuber_name.then( async (one_youtuber_name) => {
-
+                console.log(one_youtuber_name);
                 let one_youtuber_post_list = this.getYoutuberPostList(url2, params);
                 await one_youtuber_post_list.then((one_youtuber_post_list) => {
+                    
                     one_youtuber_post_list.forEach(item2 => {
                         item2.user_name = one_youtuber_name[0].Items[0].user_name;
                         following_youtuber_post_list.push(item2);

@@ -124,6 +124,48 @@ app.post('/api/signUp', (req, res) => {
 
 });
 
+// 유튜버가 개인 정보 수정을 통해 Youtuber_Profile 테이블에 등록하는 함수
+app.post('/api/youtubeProfileUpload', (req, res) => {
+    console.log(req.body);
+    
+    let user_id = req.body.user_id;
+    let user_name = req.body.user_name;
+    let user_age = req.body.user_age;
+    let user_phone_number = req.body.user_phone_number;
+    let user_gender = req.body.user_gender;
+    let preffered_category1 = req.body.preffered_category1;
+    let preffered_category2 = req.body.preffered_category2;
+    let preffered_category = [preffered_category1, preffered_category2];
+    console.log(preffered_category);
+    
+    //let following_list = req.body.following_list;
+    let user_profile_url = req.body.user_profile_url;
+    
+    let qualification = req.body.user_qualification
+
+    // 사용자 게시물 등록
+    var user_common_params = {
+        TableName: "User_Common_Profile",
+        Item: {
+            "user_id": user_id,
+            "user_name": user_name,
+            "user_age": user_age,
+            "user_phone_number": user_phone_number,
+            "user_gender": user_gender,
+            "preffered_category": preffered_category,
+            "user_profile_url": user_profile_url
+        }
+    };
+    docClient.put(user_common_params, function (err, data) {
+        if (err) {
+            console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+
+        }
+    });
+
+});    
+
 // 팔로우
 app.put('/api/addFollow', (req, res) => {
     
@@ -474,7 +516,6 @@ app.get('/api/getQualification', (req, res) => {
 // 사용자 이름을 받아오는 쿼리문
 app.get('/api/getUserName', (req, res) => {
     var user_id = req.query.user_id;
-    console.log(user_id);
 
     var get_qualification_params = {
         TableName: "User_Common_Profile",
@@ -1074,6 +1115,8 @@ app.get('/api/selectJobApplication', (req, res) => {
 // 해당 아이디의 유튜버 게시물 목록을 가지고 오는 함수
 app.get('/api/getYoutuberPostList', (req, res) => {
     var user_id = req.query.user_id;
+    //console.log("유저 아이디" + user_id);
+    
     
     var get_editor_post_list_params = {
         TableName: "Youtuber_Post",
@@ -1176,8 +1219,51 @@ app.delete('/api/jopApplicationCancel', (req, res) => {
             console.error("Unable to delete item. Error JSON:", JSON.stringify(err, null, 2));
             res.send("fail");
         } else {
-            console.log("DeleteItem succeeded:", JSON.stringify(data, null, 2));
             res.send("success");
+        }
+    });
+});
+
+//구직 신청 목록을 받아오는 함수
+app.get('/api/getAllApplication', (req, res) => {
+    console.log(req.query.youtuber_post_id);
+
+    var youtuber_post_params = {
+        TableName: "Job_Application",
+        KeyConditionExpression: "#pi = :pi",
+        ExpressionAttributeNames: {
+            "#pi": "youtuber_post_id"
+        },
+        ExpressionAttributeValues: {
+            ":pi": req.query.youtuber_post_id
+        }
+    };
+
+    docClient.query(youtuber_post_params, function (err, data) {
+        if (err) {
+            console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
+        } else {
+            res.send(data.Items)
+        }
+    });
+
+});
+
+// 유저의 공통 정보를 가져오는 함수
+app.get('/api/getCommonUserInfo', (req, res) => {
+
+    var common_user_params = {
+        TableName: 'User_Common_Profile', // give it your table name 
+        Key: {
+            "user_id": req.query.user_id
+        }
+    };
+
+    docClient.get(common_user_params, function (err, data) {
+        if (err) {
+            console.error("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            res.send(data.Item);
         }
     });
 });
