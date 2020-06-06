@@ -115,8 +115,6 @@ class YoutuberPost extends Component {
             user_profile_url: '',
             user_qualification: '',
 
-            //각 사용자에 맞는 데이터
-            qualification_profile: [],
             category_kor: [],
             user_gender_kor : '',
             follow_exist: true,
@@ -135,13 +133,6 @@ class YoutuberPost extends Component {
           if(promiseResult === true) {
             this.getUserInfo();
             this.getUserQualification();
-            if(localStorage.getItem("qualification") === "editor") {
-                // 편집자인 경우 편집자 데이터 함수
-                return;
-            } else if(localStorage.getItem("qualification") === "youtuber") {
-                // 유튜버인 경우 유튜버 데이터 함수
-                return;
-            }
           }
         });
         
@@ -169,10 +160,9 @@ class YoutuberPost extends Component {
                 following_list: body.following_list,
                 user_profile_url: body.user_profile_url,
 
-                //각 사용자에 맞는 데이터
-                //qualification_profile: [],
-
             }); 
+            console.log(this.state);
+            
 
             for (let i = 0; i < this.state.preffered_category.length; i++) {
                 for (let j = 0; j < categoryList.length; j++) {
@@ -187,8 +177,6 @@ class YoutuberPost extends Component {
             {this.state.user_gender === "man" ? this.setState({user_gender_kor : "남자"}) : this.setState({user_gender_kor : "여자"})}
             
         }
-        //   // 조회수 증가
-        //   this.increaseViewCount();
 
           // 팔로우 여부 체크
         this.selectFollowComponent()
@@ -226,6 +214,24 @@ class YoutuberPost extends Component {
         // }
     }
 
+    // 편집자 데이터를 얻어옴
+    getEditorProfile = async () => {
+        const url = '/api/getEditorProfile';
+        let params = {
+          user_id : this.state.user_id
+        }
+        
+        const response = await axios.get(url, {params});
+        
+        var body = response.data;
+        if (body !== undefined) {
+            this.setState({
+                qualification_profile : body,
+            }); 
+            console.log(this.state.qualification_profile);
+        }
+    }
+
     //해당 유저의 권한을 얻어오는 함수
     getUserQualification = async () => {
         const url = '/api/qualification';
@@ -251,14 +257,14 @@ class YoutuberPost extends Component {
     }
 
     // 유튜버의 경우 해당 프로필에 대해 구인 요청을 했는지 판단해주는 함수
-    selectJobApplication = () => {
-        const url = '/api/selectJobApplication';
-        let params = {
-            youtuber_post_id: this.state.youtuber_post_id,
-            editor_id: localStorage.getItem("user_id"),
-        }
-        return axios.get(url, {params});
-    }
+    // selectJobRequest = () => {
+    //     const url = '/api/selectJobRequest';
+    //     let params = {
+    //         youtuber_post_id: this.state.youtuber_post_id,
+    //         editor_id: localStorage.getItem("user_id"),
+    //     }
+    //     return axios.get(url, {params});
+    // }
 
 
 
@@ -287,6 +293,7 @@ class YoutuberPost extends Component {
                     </Box>
                     { localStorage.getItem("user_id") === this.state.user_id
                     ? <Box p={1} flexGrow={0} mr={1}>
+                        
                         <NavLink 
                             to={{
                                 pathname : String(modifyUrl),
@@ -299,7 +306,7 @@ class YoutuberPost extends Component {
                                     preffered_category: this.state.preffered_category,
                                     following_list: this.state.following_list,
                                     user_profile_url: this.state.user_profile_url,
-                                    qualification_profile: this.state.qualification_profile,
+                                    qualification_profile: localStorage.getItem("user_data")
                                 }
                             }}
                             style={{ textDecoration: 'none' }}
@@ -324,6 +331,7 @@ class YoutuberPost extends Component {
                 
                 { this.state.user_qualification === "youtuber"
                     ? <YoutuberProfileContent youtuber_state={this.state}/>
+                    
                     : null}
                 { this.state.user_qualification === "normal"
                     ? null

@@ -91,7 +91,7 @@ class SignUp extends Component {
            return;
        }
        localStorage.setItem("qualification", this.state.user_qualification);
-        this.editorPostUpload()
+        this.userDataUpload()
             .then((response) => {
                 if (response.data === "success") {
                     
@@ -116,8 +116,8 @@ class SignUp extends Component {
         });
     }
 
-    editorPostUpload = () => {
-        const url = '/api/signUp';
+    userDataUpload = () => {
+        const url = '/api/commonSignUp';
         // const formData = new FormData();
         // formData.append('title', this.state.title);
         // formData.append('content', this.state.content);

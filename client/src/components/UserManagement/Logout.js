@@ -3,8 +3,7 @@ import { GoogleLogin, GoogleLogout } from 'react-google-login';
 
 class Logout extends Component {
     logout = () => {
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("qualification");
+        localStorage.clear();
         alert("로그아웃 되셨습니다.")
         window.location.href = "/#/login";
     }

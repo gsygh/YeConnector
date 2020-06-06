@@ -34,7 +34,6 @@ var docClient = new AWS.DynamoDB.DocumentClient();
 
 // 사용자 권한을 얻어오는 get
 app.get('/api/qualification', (req, res) => {
-    console.log("qud : " + req.query.user_id);
     let user_id = req.query.user_id;
 
     var user_signUp_verify_params = {
@@ -53,7 +52,7 @@ app.get('/api/qualification', (req, res) => {
 });
 
 // 회원 가입
-app.post('/api/signUp', (req, res) => {
+app.post('/api/commonSignUp', (req, res) => {
     console.log(req.body);
     
     let user_id = req.body.user_id;
@@ -124,43 +123,182 @@ app.post('/api/signUp', (req, res) => {
 
 });
 
-// 유튜버가 개인 정보 수정을 통해 Youtuber_Profile 테이블에 등록하는 함수
-app.post('/api/youtubeProfileUpload', (req, res) => {
-    console.log(req.body);
-    
+
+// 공통 정보 수정
+app.post('/api/commonDataModify', (req, res) => {
     let user_id = req.body.user_id;
     let user_name = req.body.user_name;
     let user_age = req.body.user_age;
     let user_phone_number = req.body.user_phone_number;
-    let user_gender = req.body.user_gender;
     let preffered_category1 = req.body.preffered_category1;
     let preffered_category2 = req.body.preffered_category2;
     let preffered_category = [preffered_category1, preffered_category2];
-    console.log(preffered_category);
-    
-    //let following_list = req.body.following_list;
     let user_profile_url = req.body.user_profile_url;
-    
-    let qualification = req.body.user_qualification
+    console.log(preffered_category);
 
     // 사용자 게시물 등록
     var user_common_params = {
         TableName: "User_Common_Profile",
-        Item: {
-            "user_id": user_id,
-            "user_name": user_name,
-            "user_age": user_age,
-            "user_phone_number": user_phone_number,
-            "user_gender": user_gender,
-            "preffered_category": preffered_category,
-            "user_profile_url": user_profile_url
-        }
+        Key:{
+            "user_id": user_id
+        },
+        UpdateExpression: "set user_name = :n, user_age=:a, user_phone_number=:p, preffered_category=:c, user_profile_url=:u", 
+        ExpressionAttributeValues:{
+            ":n": user_name,
+            ":a": user_age,
+            ":p": user_phone_number,
+            ":c": preffered_category,
+            ":u": user_profile_url
+        },
+        ReturnValues:"UPDATED_NEW"
     };
-    docClient.put(user_common_params, function (err, data) {
+    docClient.update(user_common_params, function (err, data) {
         if (err) {
             console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
         } else {
+            res.send("success");
+        }
+    });
 
+});
+
+// 유튜버가 개인 정보 수정을 통해 Youtuber_Profile 테이블에 등록하는 함수
+app.post('/api/youtuberDataModify', (req, res) => {
+    console.log("sd :" + req.body.business_address);
+    
+    let user_id = req.body.user_id;
+    let business_address = req.body.business_address;
+    let youtube_name = req.body.youtube_name;
+    let youtube_url = req.body.youtube_url;
+    let self_introduction = req.body.self_introduction;
+
+    if(business_address == "") {
+        var user_common_params = {
+            TableName: "Youtuber_Profile",
+            Key:{
+                "user_id": user_id
+            },
+            UpdateExpression: "set business_address = :b, youtube_name=:n, youtube_url=:u, self_introduction=:i", 
+            ExpressionAttributeValues:{
+                ":b": null,
+                ":n": youtube_name,
+                ":u": youtube_url,
+                ":i": self_introduction
+            },
+            ReturnValues:"UPDATED_NEW"
+        };
+    } else {
+        var user_common_params = {
+            TableName: "Youtuber_Profile",
+            Key:{
+                "user_id": user_id
+            },
+            UpdateExpression: "set business_address = :b, youtube_name=:n, youtube_url=:u, self_introduction=:i", 
+            ExpressionAttributeValues:{
+                ":b": business_address,
+                ":n": youtube_name,
+                ":u": youtube_url,
+                ":i": self_introduction
+            },
+            ReturnValues:"UPDATED_NEW"
+        };
+    }
+    docClient.update(user_common_params, function (err, data) {
+        if (err) {
+            console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            res.send("success");
+        }
+    });
+
+});    
+
+// 유튜버 정보를 얻어옴
+app.get('/api/getYoutuberProfile', (req, res) => {
+    
+    var youtuber_profile_params = {
+        TableName: 'Youtuber_Profile', // give it your table name 
+        Key:{
+            "user_id" : req.query.user_id
+        }
+    };
+    
+
+    docClient.get(youtuber_profile_params, function (err, data) {
+        if (err) {
+            console.error("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            res.send(data.Item);
+        }
+    });
+});
+
+// 편집자 정보를 얻어옴
+app.get('/api/getEditorProfile', (req, res) => {
+    
+    var editor_profile_params = {
+        TableName: 'Editor_Profile', // give it your table name 
+        Key:{
+            "user_id" : req.query.user_id
+        }
+    };
+    
+
+    docClient.get(editor_profile_params, function (err, data) {
+        if (err) {
+            console.error("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            res.send(data.Item);
+        }
+    });
+});
+
+// 편집자가 개인 정보 수정을 통해 Editor_Profile 테이블에 등록하는 함수
+app.post('/api/editorDataModify', (req, res) => {
+    console.log("sd :" + req.body.business_address);
+    
+    let user_id = req.body.user_id;
+    let business_address = req.body.business_address;
+    let youtube_name = req.body.youtube_name;
+    let youtube_url = req.body.youtube_url;
+    let self_introduction = req.body.self_introduction;
+
+    if(business_address == "") {
+        var user_common_params = {
+            TableName: "Youtuber_Profile",
+            Key:{
+                "user_id": user_id
+            },
+            UpdateExpression: "set business_address = :b, youtube_name=:n, youtube_url=:u, self_introduction=:i", 
+            ExpressionAttributeValues:{
+                ":b": null,
+                ":n": youtube_name,
+                ":u": youtube_url,
+                ":i": self_introduction
+            },
+            ReturnValues:"UPDATED_NEW"
+        };
+    } else {
+        var user_common_params = {
+            TableName: "Youtuber_Profile",
+            Key:{
+                "user_id": user_id
+            },
+            UpdateExpression: "set business_address = :b, youtube_name=:n, youtube_url=:u, self_introduction=:i", 
+            ExpressionAttributeValues:{
+                ":b": business_address,
+                ":n": youtube_name,
+                ":u": youtube_url,
+                ":i": self_introduction
+            },
+            ReturnValues:"UPDATED_NEW"
+        };
+    }
+    docClient.update(user_common_params, function (err, data) {
+        if (err) {
+            console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            res.send("success");
         }
     });
 
@@ -172,8 +310,6 @@ app.put('/api/addFollow', (req, res) => {
     let user_id = req.body.data.user_id;
     let the_user_id = req.body.data.the_user_id;
     let following_list = [];
-
-    console.log("sfsdfsdfsdfsdf" + req.data);
     
     
     // 현재 팔로우 데이터 얻어오기.
@@ -193,7 +329,6 @@ app.put('/api/addFollow', (req, res) => {
         if (err) {
             console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
         } else {
-            console.log("Query succeeded." + JSON.stringify(data, null, 2));
             if(data.Items[0].following_list == undefined) {
                 following_list.push(the_user_id);
             }
@@ -222,7 +357,6 @@ app.put('/api/addFollow', (req, res) => {
                 if (err) {
                     console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
                 } else {
-                    console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
                     res.send("success");
                 }
             });
@@ -257,7 +391,6 @@ app.delete('/api/deleteFollow', (req, res) => {
         if (err) {
             console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
         } else {
-            console.log("Query succeeded." + JSON.stringify(data, null, 2));
             // 반복문을 돌며 일치하는 아이디를 제외하고 새로운 배열에 저장
             data.Items[0].following_list.forEach(function(item, index, object) {
                 if(item !== the_user_id) {
@@ -284,7 +417,6 @@ app.delete('/api/deleteFollow', (req, res) => {
                 if (err) {
                     console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
                 } else {
-                    //console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
                     res.send("success");
                 }
             });
@@ -295,7 +427,6 @@ app.delete('/api/deleteFollow', (req, res) => {
 
 // 팔로우 목록 얻어오기
 app.get('/api/selectFollowComponent', (req, res) => {
-    console.log(req.query);
     
     let user_id = req.query.user_id;
     let the_user_id = req.query.the_user_id;
@@ -317,8 +448,6 @@ app.get('/api/selectFollowComponent', (req, res) => {
         if (err) {
             console.error("Unable to query2. Error:", JSON.stringify(err, null, 2));
         } else {
-            console.log("Query succeeded2." + JSON.stringify(data, null, 2));
-            console.log("drdr: " +data.Items[0].following_list);
             if(data.Items[0].following_list == undefined) {
                 response = "not_exist";
             }
@@ -340,7 +469,6 @@ app.get('/api/selectFollowComponent', (req, res) => {
 // 팔로우 리스트를 얻어오는 쿼리문
 app.get('/api/getFollowingList', (req, res) => {
     var user_id = req.query.user_id;
-    console.log(user_id);
 
     var follow_editor_post_list_params = {
         TableName: "User_Common_Profile",
@@ -358,10 +486,6 @@ app.get('/api/getFollowingList', (req, res) => {
         if (err) {
             console.log("Unable to query. Error:", JSON.stringify(err, null, 2));
         } else {
-            console.log("Query succeeded.");
-            console.log(data.Items[0]);
-            
-            //res.send(data.Items[0].following_list);
             res.send("[" + JSON.stringify(data, null, 2) + "]");
         }
             
@@ -400,7 +524,6 @@ app.get('/api/editorPost', (req, res) => {
                 if (err) {
                     console.log("Unable to query. Error:", JSON.stringify(err, null, 2));
                 } else {
-                    console.log("user_name:" + data2.Items[0].user_name);
                     data.Item.user_name = data2.Items[0].user_name;
                     res.send("[" + JSON.stringify(data, null, 2) + "]");
                 }
@@ -431,7 +554,6 @@ app.get('/api/myEditorPostList', (req, res) => {
         if (err) {
             console.log("Unable to query. Error:", JSON.stringify(err, null, 2));
         } else {
-            console.log("user_name:" + data.Items[0].user_name);
             data.Items[0].user_name;
             
             //res.send("[" + JSON.stringify(data, null, 2) + "]");
@@ -468,7 +590,6 @@ app.get('/api/myEditorPostList', (req, res) => {
                     // continue scanning if we have more movies, because
                     // scan can retrieve a maximum of 1MB of data
                     if (typeof data.LastEvaluatedKey != "undefined") {
-                        console.log("Scanning for more...");
                         params.ExclusiveStartKey = data2.LastEvaluatedKey;
                         docClient.scan(params, onScan);
                     }
@@ -489,7 +610,6 @@ app.get('/api/myEditorPostList', (req, res) => {
 // 권한이 누구인지 알아내는 쿼리문
 app.get('/api/getQualification', (req, res) => {
     var user_id = req.query.user_id;
-    console.log(user_id);
 
     var get_qualification_params = {
         TableName: "Qualification",
@@ -599,7 +719,7 @@ app.get('/api/getAllOfUserId', (req, res) => {
             }
         }
         res.send(data.Items);
-        //console.log(data);
+
         
     }
 });
@@ -713,7 +833,6 @@ app.post('/api/editorPostModify', (req, res) => {
     let category = req.body.category;
     let average_satisfaction = req.body.average_satisfaction;
     let upload_date = req.body.upload_date;
-    console.log(req.body.upload_date);
     
     let youtube_post_url = req.body.youtube_post_url;
     let youtube_post_thumbnail_url = result;
@@ -753,7 +872,6 @@ app.post('/api/satisfactionUpload', (req, res) => {
     let editor_post_id = req.body.editor_post_id;
     let user_id = req.body.user_id;
     let satisfaction = req.body.satisfaction;
-    console.log(user_id);
     
     var editor_post_satisfaction_params = {
         TableName: "Editor_Post_Satisfaction", 
@@ -768,9 +886,6 @@ app.post('/api/satisfactionUpload', (req, res) => {
         if (err) {
             console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
         } else {
-            // res.send("[" + JSON.stringify(data, null, 2) + "]");
-            //res.send("success");
-            console.log("sss");
             
             var for_average_params = {
                 TableName : "Editor_Post_Satisfaction",
@@ -787,11 +902,9 @@ app.post('/api/satisfactionUpload', (req, res) => {
                 if (err) {
                     console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
                 } else {
-                    console.log("Query succeeded.");
                     let num = 0;
                     let satisfaction_sum = 0;
                     data.Items.forEach(function(item) {
-                        console.log(" -", item);
                         satisfaction_sum = (Number)(satisfaction_sum) + (Number)(item.satisfaction);
                         num = num + 1;
                     });
@@ -815,7 +928,6 @@ app.post('/api/satisfactionUpload', (req, res) => {
                         if (err) {
                             console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
                         } else {
-                            console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
                             res.send("success");
                         }
                     });
@@ -846,7 +958,6 @@ app.put('/api/editorPostUpload/increaseViewCount', (req, res) => {
         if (err) {
             console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
         } else {
-            console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
         }
     });
 });
@@ -866,7 +977,6 @@ app.delete('/api/editorPostDelete', (req, res) => {
             console.error("Unable to delete item. Error JSON:", JSON.stringify(err, null, 2));
             res.send("fail");
         } else {
-            console.log("DeleteItem succeeded:", JSON.stringify(data, null, 2));
             res.send("success");
         }
     });
@@ -965,8 +1075,6 @@ app.post('/api/youtuberPostUpload', (req, res) => {
 
 //유튜버 게시물 수정
 app.post('/api/youtuberPostModify', (req, res) => {
-
-    console.log("modify: " + req.body.youtuber_post_id);
     
     let post_id = req.body.youtuber_post_id;
     let youtuber_id = req.body.youtuber_id;
@@ -1037,7 +1145,6 @@ app.put('/api/youtuberPostUpload/increaseViewCount', (req, res) => {
         if (err) {
             console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
         } else {
-            console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
         }
     });
 });
@@ -1074,7 +1181,6 @@ app.get('/api/youtuberPost', (req, res) => {
                 if (err) {
                     console.log("Unable to query. Error:", JSON.stringify(err, null, 2));
                 } else {
-                    console.log("user_name:" + data2.Items[0].user_name);
                     data.Item.youtuber_name = data2.Items[0].user_name;
                     res.send("[" + JSON.stringify(data, null, 2) + "]");
                 }
@@ -1085,7 +1191,6 @@ app.get('/api/youtuberPost', (req, res) => {
 
 // 해당 구인 게시물에 해당 편집자가 신청을 했는지 판단해주는 함수
 app.get('/api/selectJobApplication', (req, res) => {
-    console.log("req : " + req.query.editor_id);
     
     var youtuber_post_id = req.query.youtuber_post_id;
     var editor_id = req.query.editor_id;
@@ -1115,7 +1220,6 @@ app.get('/api/selectJobApplication', (req, res) => {
 // 해당 아이디의 유튜버 게시물 목록을 가지고 오는 함수
 app.get('/api/getYoutuberPostList', (req, res) => {
     var user_id = req.query.user_id;
-    //console.log("유저 아이디" + user_id);
     
     
     var get_editor_post_list_params = {
@@ -1164,7 +1268,6 @@ app.delete('/api/youtuberPostDelete', (req, res) => {
             console.error("Unable to delete item. Error JSON:", JSON.stringify(err, null, 2));
             res.send("fail");
         } else {
-            console.log("DeleteItem succeeded:", JSON.stringify(data, null, 2));
             res.send("success");
         }
     });
@@ -1178,7 +1281,6 @@ app.post('/api/jopApplication', (req, res) => {
     let youtuber_id = req.body.youtuber_id;
     let editor_id = req.body.editor_id;
     let application_state = "신청";
-    console.log(req.body.youtuber_id);
     
 
     var job_application_params = {

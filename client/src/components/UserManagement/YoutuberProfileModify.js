@@ -10,6 +10,7 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
+import axios from 'axios';
 
 const styles = (theme) => ({
     hidden: {
@@ -68,16 +69,113 @@ const styles = (theme) => ({
 class YoutuberProfileModify extends Component {
     constructor(props) {
         super(props);
-
+        let parse_qualification_profile = JSON.parse(this.props.location.state.qualification_profile);
         this.state = {
-            business_address: '',
-            youtube_name: '',
+            user_id : this.props.location.state.user_id,
+            user_name : this.props.location.state.user_name,
+            user_age :  this.props.location.state.user_age,
+            user_profile_url : this.props.location.state.user_profile_url,
+            user_phone_number :  this.props.location.state.user_phone_number,
+            preffered_category1 : this.props.location.state.preffered_category[0],
+            preffered_category2 : this.props.location.state.preffered_category[1],
+            business_address: parse_qualification_profile.business_address,
+            youtube_name: parse_qualification_profile.youtube_name,
+            youtube_url :  parse_qualification_profile.youtube_url,
+            self_introduction :  parse_qualification_profile.self_introduction,
+            
         }
+        
+    }
+
+    handleValueChange = async (e) => {
+        let nextState = {};
+        nextState[e.target.name] = e.target.value;
+        await this.setState(nextState);
+        console.log(this.state);
+        
+    }
+
+    handleFormSubmit = (e) => {
+        if (this.state.user_name == '' || this.state.user_age == '' || this.state.user_phone_number == '' 
+        || this.state.youtube_name == '' || this.state.youtube_url == '' || this.state.self_introduction == '') {
+            alert("정보를 입력하세요!");
+            return;
+        }
+        this.commonDataModify()
+            .then((response) => {
+                if (response.data === "success") {
+                    this.youtuberDataUpload().then((response) => {
+                        if (response.data === "success") {
+                            let user_data = [];
+                            user_data.business_address = this.state.business_address;
+                            user_data.youtube_name = this.state.youtube_name;
+                            user_data.youtube_url = this.state.youtube_url;
+                            user_data.self_introduction = this.state.self_introduction;
+                            
+                            this.setState({
+                                user_id: localStorage.getItem('user_id'),
+                                user_name: '',
+                                user_age: '',
+                                user_phone_number: '',
+                                preffered_category1: 'movie/animation',
+                                preffered_category2: 'car/traffic',
+                                user_profile_url: "https://placeimg.com/64/64/any",
+                                business_address: '',
+                                youtube_name: '',
+                                youtube_url: '',
+                                self_introduction: '',
+                            });
+                            const pageUrlForComplete = "/#/myPage/profile/" + this.state.user_id;
+                            alert('정보 수정 완료!');
+                            window.location.href = pageUrlForComplete;
+                        }
+                    });
+                } else {
+                    alert('등록 실패! 정보를 확인해주세요.');
+                }
+            });
+    }
+
+    commonDataModify = () => {
+        const url = '/api/commonDataModify';
+        // const formData = new FormData();
+        // formData.append('title', this.state.title);
+        // formData.append('content', this.state.content);
+        // formData.append('category', this.state.category);
+        // formData.append('average_satisfaction', this.state.average_satisfaction);
+        // formData.append('youtube_post_url', this.state.youtube_post_url);
+        // formData.append('view_count', this.state.view_count);
+        // formData.append('is_open', this.state.is_open);
+        let data = {
+            user_id : this.state.user_id,
+            user_name : this.state.user_name,
+            user_age : this.state.user_age,
+            user_phone_number : this.state.user_phone_number,
+            preffered_category1 : this.state.preffered_category1,
+            preffered_category2 : this.state.preffered_category2,
+            user_profile_url : this.state.user_profile_url
+        }
+        
+        // axios의 post를 사용. 해당 url에 formdata를 config에 맞게
+        // return post(url, formData, config);
+        return axios.post(url, data);
+    }
+
+    youtuberDataUpload = () => {
+        const url = '/api/youtuberDataModify';
+        let data = {
+            user_id: this.state.user_id,
+            business_address: this.state.business_address,
+            youtube_name: this.state.youtube_name,
+            youtube_url: this.state.youtube_url,
+            self_introduction: this.state.self_introduction
+        }
+        
+
+        return axios.post(url, data);
     }
 
     render() {
-
-
         const classes = this.props;
         const categoryList = [
             { name: "영화/애니메이션", value: "movie/animation" },
@@ -110,7 +208,7 @@ class YoutuberProfileModify extends Component {
                                     id="user_name"
                                     name="user_name"
                                     label="닉네임"
-                                    value={this.props.location.state.user_name}
+                                    value={this.state.user_name}
                                     fullWidth
                                     onChange={this.handleValueChange}
                                 />
@@ -121,7 +219,7 @@ class YoutuberProfileModify extends Component {
                                     id="user_age"
                                     name="user_age"
                                     label="나이"
-                                    value={this.props.location.state.user_age}
+                                    value={this.state.user_age}
                                     fullWidth
                                     onChange={this.handleValueChange}
                                 />
@@ -133,7 +231,7 @@ class YoutuberProfileModify extends Component {
                                     id="user_phone_number"
                                     name="user_phone_number"
                                     label="전화번호(010-0000-0000)"
-                                    value={this.props.location.state.user_phone_number}
+                                    value={this.state.user_phone_number}
                                     fullWidth
                                     onChange={this.handleValueChange}
                                 />
@@ -144,7 +242,7 @@ class YoutuberProfileModify extends Component {
                                     id="youtube_name"
                                     name="youtube_name"
                                     label="유튜브 명"
-                                    value=""
+                                    value={this.state.youtube_name}
                                     fullWidth
                                     onChange={this.handleValueChange}
                                 />
@@ -154,7 +252,7 @@ class YoutuberProfileModify extends Component {
                                     id="business_address"
                                     name="business_address"
                                     label="회사 주소(필요 시 기재)"
-                                    value=""
+                                    value={this.state.business_address}
                                     fullWidth
                                     onChange={this.handleValueChange}
                                 />
@@ -162,11 +260,11 @@ class YoutuberProfileModify extends Component {
                             <Grid item xs={12} sm={3}>
                                 <TextField
                                     required
-                                    id="youtube_link"
-                                    name="youtube_link"
+                                    id="youtube_url"
+                                    name="youtube_url"
                                     label="유튜브 링크"
                                     fullWidth
-                                    value=""
+                                    value={this.state.youtube_url}
                                     onChange={this.handleValueChange}
                                 />
                             </Grid>
@@ -177,7 +275,7 @@ class YoutuberProfileModify extends Component {
                                     <Select defaultValue={categoryList[0].value}
                                         labelId="category-select-label2"
                                         id="preffered_category1"
-                                        value={this.props.location.state.preffered_category[0]}
+                                        value={this.state.preffered_category1}
                                         name="preffered_category1"
                                         onChange={this.handleValueChange}
                                     >
@@ -194,7 +292,7 @@ class YoutuberProfileModify extends Component {
                                 <Select defaultValue={categoryList[1].value}
                                     labelId="category-select-label3"
                                     id="preffered_category2"
-                                    value={this.props.location.state.preffered_category[1]}
+                                    value={this.state.preffered_category2}
                                     name="preffered_category2"
                                     onChange={this.handleValueChange}
                                 >
@@ -212,7 +310,7 @@ class YoutuberProfileModify extends Component {
                                 label="자기 소개"
                                 multiline
                                 fullWidth
-                                value=""
+                                value={this.state.self_introduction}
                                 onChange={this.handleValueChange}
                             />
                         </Grid>
