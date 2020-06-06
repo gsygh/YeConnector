@@ -47,7 +47,7 @@ import YoutuberPostModify from '../youtuberPostManagement/YoutuberPostModify';
 import LookUpJobApplication from '../youtuberPostManagement/LookUpJobApplication';
 
 import MyProfile from '../UserManagement/MyProfile';
-import YoutuberProfileModify from '../UserManagement/YoutuberProfileModify';
+import ProfileModify from '../UserManagement/ProfileModify';
 
 const drawerWidth = 240;
 
@@ -499,7 +499,7 @@ class Context extends Component {
                             <Route exact path="/youtuberPost/lookUpJobApplication/:youtuber_post_id" component={LookUpJobApplication}></Route>
 
                             <Route exact path="/mypage/profile/:user_id" component={MyProfile}></Route>
-                            <Route exact path="/myPage/profileModify/:user_id" component={YoutuberProfileModify}></Route>
+                            <Route exact path="/myPage/profileModify/:user_id" component={ProfileModify}></Route>
                             
                             
                             {console.log(window.location.href)}

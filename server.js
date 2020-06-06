@@ -164,7 +164,6 @@ app.post('/api/commonDataModify', (req, res) => {
 
 // 유튜버가 개인 정보 수정을 통해 Youtuber_Profile 테이블에 등록하는 함수
 app.post('/api/youtuberDataModify', (req, res) => {
-    console.log("sd :" + req.body.business_address);
     
     let user_id = req.body.user_id;
     let business_address = req.body.business_address;
@@ -198,6 +197,58 @@ app.post('/api/youtuberDataModify', (req, res) => {
                 ":b": business_address,
                 ":n": youtube_name,
                 ":u": youtube_url,
+                ":i": self_introduction
+            },
+            ReturnValues:"UPDATED_NEW"
+        };
+    }
+    docClient.update(user_common_params, function (err, data) {
+        if (err) {
+            console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            res.send("success");
+        }
+    });
+
+});    
+
+// 편집자가 개인 정보 수정을 통해 Editor_Profile 테이블에 등록하는 함수
+app.post('/api/editorDataModify', (req, res) => {
+    
+    let user_id = req.body.user_id;
+    let hope_pay_per_case = req.body.hope_pay_per_case;
+    let career = req.body.career;
+    let edit_tools = req.body.edit_tools;
+    let self_introduction = req.body.self_introduction;
+    console.log("career : " + career);
+    
+
+    if(career == "") {
+        var user_common_params = {
+            TableName: "Editor_Profile",
+            Key:{
+                "user_id": user_id
+            },
+            UpdateExpression: "set hope_pay_per_case = :b, career=:n, edit_tools=:u, self_introduction=:i", 
+            ExpressionAttributeValues:{
+                ":b": hope_pay_per_case,
+                ":n": [],
+                ":u": edit_tools,
+                ":i": self_introduction
+            },
+            ReturnValues:"UPDATED_NEW"
+        };
+    } else {
+        var user_common_params = {
+            TableName: "Editor_Profile",
+            Key:{
+                "user_id": user_id
+            },
+            UpdateExpression: "set hope_pay_per_case = :b, career=:n, edit_tools=:u, self_introduction=:i", 
+            ExpressionAttributeValues:{
+                ":b": hope_pay_per_case,
+                ":n": career,
+                ":u": edit_tools,
                 ":i": self_introduction
             },
             ReturnValues:"UPDATED_NEW"
@@ -248,6 +299,8 @@ app.get('/api/getEditorProfile', (req, res) => {
         if (err) {
             console.error("Unable to read item. Error JSON:", JSON.stringify(err, null, 2));
         } else {
+            console.log(data.Item);
+            
             res.send(data.Item);
         }
     });

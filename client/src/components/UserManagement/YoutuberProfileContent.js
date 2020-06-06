@@ -102,10 +102,14 @@ class YoutuberProfileContent extends Component {
 
             let one_editor_name = this.getEditorName(url, params);
             await one_editor_name.then( async (one_editor_name) => {
-                user_data.editor_name = one_editor_name[0].Items[0].user_name;
+                if (one_editor_name[0].Items[0] !== undefined) {
+                    user_data.editor_name = one_editor_name[0].Items[0].user_name;
+                    user_data_list.push(user_data);
+                    user_data = [];
+                }
+                
             });
-            user_data_list.push(user_data);
-            user_data = [];
+            
             }
             
         });
@@ -208,8 +212,9 @@ class YoutuberProfileContent extends Component {
                     <Grid item xs={12} sm={5}>
                         <Box m={1} p={1}>
                             <Typography component="h1" variant="h5">
-                                선호 카테고리<br/><br/>
+                                선호 카테고리
                             </Typography>
+                            <br/>
                             <Typography component="h1" variant="body1">
                                 <li>{this.props.youtuber_state.category_kor[0]}</li>
                                 <li>{this.props.youtuber_state.category_kor[1]}</li>
@@ -241,6 +246,7 @@ class YoutuberProfileContent extends Component {
                                 <br />
                                 <Typography component="h1" variant="body1">
                                     {this.state.youtuber_data.business_address}
+                                    <br /><br /><br />
                                 </Typography>
                                 <br /></div>
                             : null

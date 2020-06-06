@@ -306,6 +306,7 @@ class YoutuberPost extends Component {
                                     preffered_category: this.state.preffered_category,
                                     following_list: this.state.following_list,
                                     user_profile_url: this.state.user_profile_url,
+                                    user_qualification: this.state.user_qualification,
                                     qualification_profile: localStorage.getItem("user_data")
                                 }
                             }}

@@ -41,6 +41,8 @@ class EditorProfileContent extends Component {
             editor_data: [],
             with_work_youtuber_id_list: [],
             with_work_youtuber_list: [],
+            career : [],
+            edit_tools : [],
         }
         
     }
@@ -79,10 +81,14 @@ class EditorProfileContent extends Component {
         if (body !== undefined) {
             this.setState({
                 editor_data : body,
+                career : body.career,
+                edit_tools : body.edit_tools,
             }); 
+            if(this.state.career[0] === "undefined") {
+                this.setState({career : [""]})
+            }
         }
         localStorage.setItem("user_data", JSON.stringify(this.state.editor_data));
-        console.log(this.state);
         return true;
     }
 
@@ -102,10 +108,15 @@ class EditorProfileContent extends Component {
 
             let one_youtuber_name = this.getYoutuberName(url, params);
             await one_youtuber_name.then( async (one_youtuber_name) => {
-                user_data.youtuber_name = one_youtuber_name[0].Items[0].user_name;
+                console.log(one_youtuber_name);
+                if (one_youtuber_name[0].Items[0] !== undefined) {
+                    user_data.youtuber_name = one_youtuber_name[0].Items[0].user_name;
+                    user_data_list.push(user_data);
+                    user_data = [];
+                    
+                }
             });
-            user_data_list.push(user_data);
-            user_data = [];
+            
             }
             
         });
@@ -131,7 +142,7 @@ class EditorProfileContent extends Component {
         
         return (
             <div>
-                <Grid container spacing={6} className={classes.form} justify="center">
+                <Grid container spacing={2} className={classes.form} justify="center">
                     <Grid item xs={12} sm={3}>
                         <Paper className={classes.fixedHeightPaper} minHeight="30vW">
                             <Typography component="h1" variant="h6" align="center">
@@ -160,62 +171,74 @@ class EditorProfileContent extends Component {
                     </Paper>
                     </Grid>
 
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={2}>
                     <Paper className={classes.fixedHeightPaper}>
                         <Typography component="h1" variant="h6" align="center">
                             {/* 앞에 도구 그림 */}
-                            유튜브 명
+                            편집 가능 툴
                         </Typography>
-
-                            {/* {this.state.edit_tools.length == 1 && <br />}
+                        <Typography component="h1" variant="h6" align="center">
+                            {this.state.edit_tools.length == 1 && <br />}
                             
                             {this.state.edit_tools.map(c => {
                                 return <li>{c} </li>
                             })}
                             {this.state.edit_tools.length == 1 && <br />}
-                            {this.state.edit_tools.length == 2 && <br /> } */}
-                            <Typography component="h1" variant="h6" align="center">
-                                <br />
-                                {this.state.editor_data.youtube_name} 
-                            </Typography>
-                            <a href={youtube_url} style={{ textDecoration: 'none' }} target="_blank">
-                                <Typography component="h1" variant="h6" align="center">
-                                    <Button variant="text">
-                                        <Typography component="h1" variant="body1" color="primary">
-                                            (유튜브 링크로 이동)
-                                        </Typography>
-                                    </Button>
-                                </Typography>
-                            </a>
-
+                            {this.state.edit_tools.length == 2 && <br /> }
+                        </Typography>
                         </Paper>
                     </Grid>
                     <Grid item xs={12} sm={2}>
-                    <Paper className={classes.fixedHeightPaper}>
-                        <Typography component="h1" variant="h6" align="center">
-                            계약 건수
-                        </Typography>
-                        <Typography component="h1" variant="h6" align="center">
-                            <li>단기: {this.state.editor_data.short_period_contract_cnt}회</li>
-                            <li>장기: {this.state.editor_data.long_period_contract_cnt}회</li><br />
-                        </Typography>
+                        <Paper className={classes.fixedHeightPaper}>
+                            <Typography component="h1" variant="h6" align="center">
+                                희망 급여
+                            </Typography>
+                            <Typography component="h1" variant="h6" align="center">
+                            <br/>
+                            {this.state.editor_data.hope_pay_per_case} 원<br />
+                            <br />
+                            </Typography>
                         </Paper>
                     </Grid>
+                    <Grid item xs={12} sm={2}>
+                        <Paper className={classes.fixedHeightPaper}>
+                            <Typography component="h1" variant="h6" align="center">
+                                계약 건수
+                            </Typography>
+                            <Typography component="h1" variant="h6" align="center">
+                                <li>단기: {this.state.editor_data.short_period_contract_cnt}회</li>
+                                <li>장기: {this.state.editor_data.long_period_contract_cnt}회</li><br />
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    
                 </Grid>
                 <br />
                 <hr width="100%" />
                 <Grid container spacing={6} className={classes.form}>
                     <Grid item xs={12} sm={5}>
                         <Box m={1} p={1}>
+                            {/* {this.state.career.length !== 0
+                                ?  */}
+                                <div><Typography component="h1" variant="h5">
+                                    경력 사항
+                                    </Typography>
+                                    <br />
+                                    <Typography component="h1" variant="body1">
+                                        {this.state.career.length !== 0
+                                            ? this.state.career.map((data) => {
+                                                return <li>{data}</li>
+                                            })
+                                            : <li>없음</li>
+                                        }
+                                        <br /><br /><br />
+                                    </Typography>
+                                    <br /></div>
+                                {/* : null
+                            } */}
+                            
                             <Typography component="h1" variant="h5">
-                                선호 카테고리<br/><br/>
-                            </Typography>
-                            <Typography component="h1" variant="body1">
-                                <li>{this.props.editor_state.category_kor[0]}</li>
-                                <li>{this.props.editor_state.category_kor[1]}</li>
-                            </Typography>
-                            <br /><br /><br />
-                            <Typography component="h1" variant="h5">
+                                
                                 현재 함께 작업하는 유튜버
                             </Typography>
                             <br />
@@ -234,17 +257,14 @@ class EditorProfileContent extends Component {
                     </Grid>
                     <Grid item xs={12} sm={7}>
                         <Box m={1} p={1}>
-                            {this.state.editor_data.business_address !== null
-                                ? <div><Typography component="h1" variant="h5">
-                                    회사 주소
-                                </Typography>
-                                <br />
-                                <Typography component="h1" variant="body1">
-                                    {this.state.editor_data.business_address}
-                                </Typography>
-                                <br /></div>
-                            : null
-                            }
+                            <Typography component="h1" variant="h5">
+                                선호 카테고리<br/><br/>
+                            </Typography>
+                            <Typography component="h1" variant="body1">
+                                <li>{this.props.editor_state.category_kor[0]}</li>
+                                <li>{this.props.editor_state.category_kor[1]}</li>
+                                <br /><br /><br />
+                            </Typography>
                             
                             <Typography component="h1" variant="h5">
                                 본인 소개

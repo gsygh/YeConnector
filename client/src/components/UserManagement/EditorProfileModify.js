@@ -66,24 +66,46 @@ const styles = (theme) => ({
     },
 });
 
-class YoutuberProfileModify extends Component {
+class EditorProfileModify extends Component {
     constructor(props) {
         super(props);
+        console.log(this.props);
+        
         let parse_qualification_profile = JSON.parse(this.props.user_info.qualification_profile);
-        this.state = {
-            user_id : this.props.user_info.user_id,
-            user_name : this.props.user_info.user_name,
-            user_age :  this.props.user_info.user_age,
-            user_profile_url : this.props.user_info.user_profile_url,
-            user_phone_number :  this.props.user_info.user_phone_number,
-            preffered_category1 : this.props.user_info.preffered_category[0],
-            preffered_category2 : this.props.user_info.preffered_category[1],
-            business_address: parse_qualification_profile.business_address,
-            youtube_name: parse_qualification_profile.youtube_name,
-            youtube_url :  parse_qualification_profile.youtube_url,
-            self_introduction :  parse_qualification_profile.self_introduction,
-            
+        if (parse_qualification_profile === "") {
+            this.state = {
+                user_id : this.props.user_info.user_id,
+                user_name : this.props.user_info.user_name,
+                user_age :  this.props.user_info.user_age,
+                user_profile_url : this.props.user_info.user_profile_url,
+                user_phone_number :  this.props.user_info.user_phone_number,
+                preffered_category1 : this.props.user_info.preffered_category[0],
+                preffered_category2 : this.props.user_info.preffered_category[1],
+                hope_pay_per_case: "",
+                career: "",
+                self_introduction : "",
+                edit_tools : "",
+                
+            }
         }
+        else {
+            this.state = {
+                user_id : this.props.user_info.user_id,
+                user_name : this.props.user_info.user_name,
+                user_age :  this.props.user_info.user_age,
+                user_profile_url : this.props.user_info.user_profile_url,
+                user_phone_number :  this.props.user_info.user_phone_number,
+                preffered_category1 : this.props.user_info.preffered_category[0],
+                preffered_category2 : this.props.user_info.preffered_category[1],
+                hope_pay_per_case: parse_qualification_profile.hope_pay_per_case,
+                career: parse_qualification_profile.career,
+                self_introduction :  parse_qualification_profile.self_introduction,
+                edit_tools : parse_qualification_profile.edit_tools,
+                
+            }
+        }
+        
+        
         
     }
 
@@ -97,14 +119,14 @@ class YoutuberProfileModify extends Component {
 
     handleFormSubmit = (e) => {
         if (this.state.user_name == '' || this.state.user_age == '' || this.state.user_phone_number == '' 
-        || this.state.youtube_name == '' || this.state.youtube_url == '' || this.state.self_introduction == '') {
+        || this.state.hope_pay_per_case == '' || this.state.edit_tools == '' || this.state.self_introduction == '') {
             alert("정보를 입력하세요!");
             return;
         }
         this.commonDataModify()
             .then((response) => {
                 if (response.data === "success") {
-                    this.youtuberDataUpload().then((response) => {
+                    this.editorDataUpload().then((response) => {
                         if (response.data === "success") {
                             
                             this.setState({
@@ -115,10 +137,10 @@ class YoutuberProfileModify extends Component {
                                 preffered_category1: 'movie/animation',
                                 preffered_category2: 'car/traffic',
                                 user_profile_url: "https://placeimg.com/64/64/any",
-                                business_address: '',
-                                youtube_name: '',
-                                youtube_url: '',
-                                self_introduction: '',
+                                hope_pay_per_case: "",
+                                career: "",
+                                self_introduction: "",
+                                edit_tools : "",
                             });
                             const pageUrlForComplete = "/#/myPage/profile/" + this.state.user_id;
                             alert('정보 수정 완료!');
@@ -156,14 +178,14 @@ class YoutuberProfileModify extends Component {
         return axios.post(url, data);
     }
 
-    youtuberDataUpload = () => {
-        const url = '/api/youtuberDataModify';
+    editorDataUpload = () => {
+        const url = '/api/editorDataModify';
         let data = {
             user_id: this.state.user_id,
-            business_address: this.state.business_address,
-            youtube_name: this.state.youtube_name,
-            youtube_url: this.state.youtube_url,
-            self_introduction: this.state.self_introduction
+            hope_pay_per_case: this.state.hope_pay_per_case,
+            career: String(this.state.career).split(','),
+            self_introduction: this.state.self_introduction,
+            edit_tools: String(this.state.edit_tools).split(','),
         }
         
 
@@ -234,32 +256,32 @@ class YoutuberProfileModify extends Component {
                             <Grid item xs={12} sm={3}>
                                 <TextField
                                     required
-                                    id="youtube_name"
-                                    name="youtube_name"
-                                    label="유튜브 명"
-                                    value={this.state.youtube_name}
+                                    id="hope_pay_per_case"
+                                    name="hope_pay_per_case"
+                                    label="희망 급여"
+                                    value={this.state.hope_pay_per_case}
                                     fullWidth
                                     onChange={this.handleValueChange}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={9}>
-                                <TextField
-                                    id="business_address"
-                                    name="business_address"
-                                    label="회사 주소(필요 시 기재)"
-                                    value={this.state.business_address}
-                                    fullWidth
-                                    onChange={this.handleValueChange}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={3}>
+                            <Grid item xs={12} sm={6}>
                                 <TextField
                                     required
-                                    id="youtube_url"
-                                    name="youtube_url"
-                                    label="유튜브 링크"
+                                    id="edit_tools"
+                                    name="edit_tools"
+                                    label="편집 가능 툴(2개 이상 시 ,로 구분)"
+                                    value={this.state.edit_tools}
                                     fullWidth
-                                    value={this.state.youtube_url}
+                                    onChange={this.handleValueChange}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    id="career"
+                                    name="career"
+                                    label="경력 사항(2개 이상 시 ,로 구분)"
+                                    fullWidth
+                                    value={this.state.career}
                                     onChange={this.handleValueChange}
                                 />
                             </Grid>
@@ -320,4 +342,4 @@ class YoutuberProfileModify extends Component {
     }
 }
 
-export default withStyles(styles)(YoutuberProfileModify);
+export default withStyles(styles)(EditorProfileModify);
